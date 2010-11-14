@@ -1,0 +1,1 @@
+vendor/backbone-couchdb/lib/jquery.couch.js
