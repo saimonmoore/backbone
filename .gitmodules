@@ -1,0 +1,9 @@
+[submodule "examples/todos/vendor/backbone-couchdb"]
+	path = examples/todos/vendor/backbone-couchdb
+	url = git@github.com:saimonmoore/backbone-couchdb.git
+[submodule "examples/todos/vendor/backbone-localstorage"]
+	path = examples/todos/vendor/backbone-localstorage
+	url = git@github.com:saimonmoore/Backbone.localStorage.git
+[submodule "examples/todos/vendor/couchcache"]
+	path = examples/todos/vendor/couchcache
+	url = git@github.com:saimonmoore/couchcache.git
