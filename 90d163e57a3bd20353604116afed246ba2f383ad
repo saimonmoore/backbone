@@ -1,0 +1,77 @@
+upstream mongrel_localtodos {
+  server 127.0.0.1:4000;
+}
+
+upstream couchdb {
+  server 127.0.0.1:5984;
+}
+
+server {
+        listen                  8080;
+        server_name             localtodos.local;
+        # ssl                           on;
+        # ssl_certificate           /usr/local/nginx/conf/projname.crt;
+        # ssl_certificate_key     /usr/local/nginx/conf/projname.key;
+        # ssl_session_cache       shared:SSL.cache:10m;
+
+        access_log      /Users/saimon/Development/OpenSource/forks/backbone/examples/todos/localtodos.access.log  main;
+        error_log       /Users/saimon/Development/OpenSource/forks/backbone/examples/todos/localtodos.error.log  debug;
+        root            /Users/saimon/Development/OpenSource/forks/backbone/examples/todos;
+
+        # Set the max size for file uploads to 50Mb
+        client_max_body_size 50M;
+
+        if (-f $document_root/maintenance.html) {
+                rewrite ^(.*)$ /maintenance.html
+                last;
+        }
+
+        #To get around same-domain policy we reverse proxy all request to /couchdb to couchdb
+        location /couchdb {
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          # needed to forward user's IP address to rails
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_redirect off;
+
+          if (!-f $request_filename) {
+            rewrite ^/couchdb/(.+)$ /$1 break;
+            proxy_pass http://couchdb;
+          }
+        }
+
+        location / {
+            proxy_set_header            X-Real-IP               $remote_addr;
+
+            # proxy_set_header            X-Forwarded_Proto       https;
+            proxy_set_header            X-Forwarded_Proto       http;
+            proxy_set_header            X-Forwarded-For         $proxy_add_x_forwarded_for;
+            proxy_set_header            Host                    $http_host;
+            proxy_redirect off;
+            proxy_max_temp_file_size 0;
+
+            if (-f $request_filename) {
+                break;
+             }
+
+             if (-f $request_filename/index.html) {
+                rewrite (.*) $1/index.html;
+                break;
+             }
+
+             if (!-f $request_filename) {
+                proxy_pass http://mongrel_localtodos;
+                break;
+            }
+        }
+
+        # location /assets/ {
+        #  internal;
+        #  root  /Users/saimon/Development/Clients/teambox/;
+        # }
+
+        error_page 500 502 503 504      /500.html;
+        location = /500.html {
+                root /Users/saimon/Development/OpenSource/forks/backbone/examples/todos;
+        }
+    }
