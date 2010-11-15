@@ -3,6 +3,13 @@
 // [LocalStorage adapter](backbone-localstorage.html)
 // to persist Backbone models within your browser.
 
+Backbone.couchConnector.baseUrl = "http://localtodos.local:8080/couchdb";
+Backbone.couchConnector.databaseName = "localtodos";
+Backbone.couchConnector.ddocName = "localtodos";
+Backbone.couchConnector.viewName = "byCollection";
+Backbone.couchConnector.enableChanges = true;
+
+
 // Load the application once the DOM is ready, using `jQuery.ready`:
 $(function(){
 
@@ -42,11 +49,12 @@ $(function(){
   // server.
   window.TodoList = Backbone.Collection.extend({
 
+    url: '/todos',
     // Reference to this collection's model.
     model: Todo,
 
     // Save all of the todo items under the `"todos"` namespace.
-    localStorage: new Store("todos"),
+    // localStorage: new Store("todos"),
 
     // Filter down the list of all todo items that are finished.
     done: function() {
